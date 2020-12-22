@@ -88,4 +88,6 @@ typedef void(^SGQRCodeObtainAlbumResultBlock)(SGQRCodeObtain *obtain, NSString *
 /** 关闭手电筒 */
 - (void)closeFlashlight;
 
+- (void)setVideoScale:(CGFloat)scale;
+
 @end

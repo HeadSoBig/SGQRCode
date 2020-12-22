@@ -19,6 +19,7 @@
 @property (nonatomic, copy) SGQRCodeObtainAlbumDidCancelImagePickerControllerBlock albumDidCancelImagePickerControllerBlock;
 @property (nonatomic, copy) SGQRCodeObtainAlbumResultBlock albumResultBlock;
 @property (nonatomic, copy) NSString *detectorString;
+@property (nonatomic, strong) AVCaptureDeviceInput * input;
 
 @end
 
@@ -138,6 +139,7 @@
     AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     // 1、捕获设备输入流
     AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
+    _input = deviceInput;
     // 2、捕获元数据输出流
     AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
     [metadataOutput setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
@@ -381,6 +383,27 @@ void soundCompleteCallback(SystemSoundID soundID, void *clientData){
         [captureDevice setTorchMode:AVCaptureTorchModeOff];
         [captureDevice unlockForConfiguration];
     }
+}
+
+- (void)setVideoScale:(CGFloat)scale {
+    
+    [_input.device lockForConfiguration:nil];
+    
+    CGFloat maxZoomFactor = _input.device.activeFormat.videoMaxZoomFactor;
+    if (@available(iOS 11.0, *)) {
+        maxZoomFactor = _input.device.maxAvailableVideoZoomFactor;
+    }
+    if (maxZoomFactor > 6.0) {
+        maxZoomFactor = 6.0;
+    }
+    if (scale > maxZoomFactor) {
+        scale = maxZoomFactor;
+    }
+
+    [_input.device rampToVideoZoomFactor:scale withRate:5];
+    
+    [_input.device unlockForConfiguration];
+   
 }
 
 @end
